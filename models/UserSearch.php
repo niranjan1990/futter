@@ -1,32 +1,29 @@
 <?php
+
 namespace app\models;
 
-use app\rbac\models\AuthItem;
-use yii\data\ActiveDataProvider;
 use yii\base\Model;
-use Yii;
+use yii\data\ActiveDataProvider;
+use app\models\User;
 
 /**
- * UserSearch represents the model behind the search form for app\models\User.
+ * UserSearch represents the model behind the search form of `app\models\User`.
  */
 class UserSearch extends User
 {
     /**
-     * Returns the validation rules for attributes.
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['username', 'email', 'status', 'item_name'], 'safe'],
+            [['id', 'status', 'created_at', 'updated_at'], 'integer'],
+            [['username', 'password_hash', 'password_reset_token', 'email', 'account_activation_token', 'auth_key', 'item_name'], 'safe'],
         ];
     }
 
     /**
-     * Returns a list of scenarios and the corresponding active attributes.
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function scenarios()
     {
@@ -35,37 +32,31 @@ class UserSearch extends User
     }
 
     /**
-     * Creates data provider instance with search query applied.
+     * Creates data provider instance with search query applied
      *
-     * @param  array   $params
-     * @param  integer $pageSize How many users to display per page.
+     * @param array $params
+     *
      * @return ActiveDataProvider
      */
-    public function search($params, $pageSize = 10)
+    public function search($params)
     {
-        $query = User::find()->joinWith('role');
+        $query = User::find();
 
-        // if user is not 'theCreator' ( You ), do not show him users with this role
-        if (!Yii::$app->user->can('theCreator')) {
-            $query->where(['!=', 'item_name', 'theCreator']);
-        }
+        // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => ['id'=>SORT_ASC]],
-            'pagination' => ['pageSize' => $pageSize]
         ]);
 
-        // make item_name (Role) sortable
-        $dataProvider->sort->attributes['item_name'] = [
-            'asc' => ['item_name' => SORT_ASC],
-            'desc' => ['item_name' => SORT_DESC],
-        ];
+        $this->load($params);
 
-        if (!($this->load($params) && $this->validate())) {
+        if (!$this->validate()) {
+            // uncomment the following line if you do not want to return any records when validation fails
+            // $query->where('0=1');
             return $dataProvider;
         }
 
+        // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
             'status' => $this->status,
@@ -74,26 +65,13 @@ class UserSearch extends User
         ]);
 
         $query->andFilterWhere(['like', 'username', $this->username])
-              ->andFilterWhere(['like', 'email', $this->email])
-              ->andFilterWhere(['like', 'item_name', $this->item_name]);
+            ->andFilterWhere(['like', 'password_hash', $this->password_hash])
+            ->andFilterWhere(['like', 'password_reset_token', $this->password_reset_token])
+            ->andFilterWhere(['like', 'email', $this->email])
+            ->andFilterWhere(['like', 'account_activation_token', $this->account_activation_token])
+            ->andFilterWhere(['like', 'auth_key', $this->auth_key])
+            ->andFilterWhere(['like', 'item_name', $this->item_name]);
 
         return $dataProvider;
-    }
-
-    /**
-     * Returns the array of possible user roles.
-     * NOTE: used in user/index view.
-     *
-     * @return mixed
-     */
-    public static function getRolesList()
-    {
-        $roles = [];
-
-        foreach (AuthItem::getRoles() as $item_name) {
-            $roles[$item_name->name] = $item_name->name;
-        }
-
-        return $roles;
     }
 }

@@ -56,6 +56,7 @@ AppAsset::register($this);
             'url' => ['/site/logout'],
             'linkOptions' => ['data-method' => 'post']
         ];
+        $menuItems[] = ['label' => Yii::t('app', 'Viewposts'), 'url' => ['/site/viewposts']];
     }
 
     // display Signup and Login pages to guests of the site

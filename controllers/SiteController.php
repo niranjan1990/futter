@@ -156,8 +156,6 @@ class SiteController extends Controller
         foreach($users as $user){
             $post=Posts::find()->where(['user_id'=>$user])->asArray()->all();
             $user=User::find()->where(['id'=>$user])->asArray()->all();
-            print_r($post);
-            exit();
             $username=$user[0]['username'];
             $tweet=$post[0]['post'];
             array_push($data, array(
@@ -189,7 +187,7 @@ class SiteController extends Controller
     
                                 try  {
                                     $postsModel->user_id=$userid;
-                                    $postsModel->createddate = date('Y-m-d H:i:s');
+                                    $postsModel->created_date = date('Y-m-d H:i:s');
                                     $postsModel->save();
                                     $locationModel->posts_id=$postsModel->id;
                                     $locationModel->user_id=$userid;
