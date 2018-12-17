@@ -151,13 +151,17 @@ class SiteController extends Controller
            }
           
         }
-      //  print_r($users);
+
+        $post=Posts::find()->joinWith('user')->where(['user_id'=>$users])->asArray()->all();
+        $user=User::find()->where(['id'=>$users])->asArray()->all();
+
+       // print_r($user);
+       
       $data=array();
-        foreach($users as $user){
-            $post=Posts::find()->where(['user_id'=>$user])->asArray()->all();
-            $user=User::find()->where(['id'=>$user])->asArray()->all();
-            $username=$user[0]['username'];
-            $tweet=$post[0]['post'];
+        foreach($post as $pos){
+           
+            $username=$pos['user']['username'];
+            $tweet=$pos['post'];
             array_push($data, array(
                 "username" => $username, 
                 "tweet" => $tweet, 
@@ -181,10 +185,9 @@ class SiteController extends Controller
     
                 $userid=Yii::$app->user->id;
                
-
                 if ($postsModel->load(Yii::$app->request->post()) 
                 && $locationModel->load(Yii::$app->request->post())) {
-    
+                    
                                 try  {
                                     $postsModel->user_id=$userid;
                                     $postsModel->created_date = date('Y-m-d H:i:s');
@@ -193,7 +196,8 @@ class SiteController extends Controller
                                     $locationModel->user_id=$userid;
                                     $locationModel->save();
                                     $transaction->commit();
-                                    //return $this->redirect(['viewposts']);
+                                  
+                                    return $this->redirect(['viewposts']);
                                 } catch (Exception $e) {
                                     $transaction->rollBack();
                                 }
