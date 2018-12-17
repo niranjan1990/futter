@@ -23,9 +23,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
 
 <?php if($hide == 1){ ?>
-<?= $form->field($locationModel, 'lat')->textInput(['maxlength' => true,'disabled' => true,'value' => $lat]) ?>
+<?= $form->field($locationModel, 'lat')->textInput(['maxlength' => true,'readonly' => true,'value' => $lat]) ?>
 
-<?= $form->field($locationModel, 'lon')->textInput(['maxlength' => true,'disabled' => true,'value' => $lon]) ?>
+<?= $form->field($locationModel, 'lon')->textInput(['maxlength' => true,'readonly' => true,'value' => $lon]) ?>
 
 <?php }else{ ?>
 <p><div class="btn btn-success" onclick="geoFindMe()">Show my location</div></p>
